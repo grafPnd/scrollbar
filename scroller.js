@@ -2,6 +2,8 @@
  * Created by Graf on 24.10.13.
  * pre-alfa version
  */
+ //TODO: j_scontent наверно выпилить
+ //TODO: data change to this
 (function(jQuery){
     'use strict';
     var
@@ -35,7 +37,7 @@
                 tempHtml:el.innerHTML,
                 child:$('<div/>'),
                 scontent:$('<div/>'),//scrolled content
-                gscrollcont:$('<div/>'),
+                scontrol:$('<div/>'),
                 scrollRail:$('<div/>'),
                 runner:$('<div/>'),//runner  on rail
                 scwidth:null,//scrolled content width
@@ -155,68 +157,22 @@
             pos=$(el).css('position')!='static'?$(el).css('position'):'relative';
         data.jel
             .empty()
-            .css({
-                'position': pos
-            });
+            .css('position',pos);
         data.child
-            .css({
-                'position':'absolute',
-                'width':'100%',
-                'height':'100%',
-                'overflow':'hidden'
-            })
+            .addClass('scr_Child')
             .appendTo(data.jel);
         data.scontent
             .html(tempHTML)
-            .addClass('j_scontent')
-            .css({
-                'position':'absolute',
-                'top':'0px',
-                'left':'0px'
-            })
+            .addClass('j_scontent scr_Content')
             .appendTo(data.child);
-        data.gscrollcont
-            .css({
-                'padding': '0px',
-                'position': 'absolute'
-            })
-            .css(data.axis=='y'?{
-                'width': '8px',
-                'height': '100%',
-                'right': '4px',
-                'top': '0px'
-            }:{
-                'width': '100%',
-                'height': '8px',
-                'left': '0px',
-                'bottom': '4px'
-            })
+        data.scontrol
+            .addClass('scr_Control '+(data.axis=='y'?'scr_Control_vert':'scr_Control_hor'))
             .appendTo(data.child);
         data.scrollRail
-            .css({
-                'opacity':'0',
-                'background':'none',
-                'borderRadius': '5px',
-                'cursor': 'pointer',
-                'height': '100%',
-                'position': 'relative',
-                'width': '100%',
-                'zIndex': '999'
-            })
-            .appendTo(data.gscrollcont);
+            .addClass('scr_Rail')
+            .appendTo(data.scontrol);
         data.runner
-            .css({
-                'background':'#D6D6D6',
-                'borderRadius': '5px',
-                'position': 'absolute'
-            })
-            .css(data.axis=='y'?{
-                'width': '100%',
-                'top': '0px'
-            }:{
-                'height': '100%',
-                'left': '0px'
-            })
+            .addClass('scr_Runner '+(data.axis=='y'?'scr_Runner_vert':'scr_Runner_hor'))
             .appendTo(data.scrollRail);
         checkSizes(el);
     };

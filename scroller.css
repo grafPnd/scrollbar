@@ -1,0 +1,50 @@
+.scr_Child{
+	position:absolute;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+}
+.scr_Content{
+	position:absolute;
+	top:0px;
+	left:0px;
+}
+.scr_Control{
+	padding: 0px;
+    position: absolute;
+}
+.scr_Control_hor{
+	width: 100%;
+	height: 8px;
+	left: 0px;
+	bottom: 4px;
+}
+.scr_Control_vert{
+	width: 8px;
+	height: 100%;
+	right: 4px;
+	top: 0px;
+}
+.scr_Rail{
+	opacity:0;
+	height: 100%;
+	width: 100%;
+	background:none;
+	cursor: pointer;
+	position: relative;
+	border-radius: 5px;
+	z-index: 999;
+}
+.scr_Runner{
+	background:#D6D6D6;
+	border-radius: 5px;
+	position: absolute;
+}
+.scr_Runner_hor{
+	height: 100%;
+    left: 0px;
+}
+.scr_Runner_vert{
+	width: 100%;
+    top: 0px;
+}
