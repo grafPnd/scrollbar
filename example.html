@@ -13,7 +13,7 @@
 			padding:0px;
 			width:100%;
 			overflow:hidden;
-		
+			
 			}
 			
 			.s_string{
@@ -38,9 +38,14 @@
 		</style>
 		<script>
 			$(function(){
-			var text=$('#id11').html();
+			var 
+				text1=$('#id11').html()
+				text2=$('#id12').html();
 				$('#add').click(function(){
-					$('#id1').html(text).scrollUpdate();
+					$('#id1').html(text1).scrollUpdate();
+				});
+				$('#remove').click(function(){
+					$('#id1').html(text2).scrollUpdate();
 				});
 				$('#id1').scrollable();
 				$('#id2').scrollable('x');
@@ -49,32 +54,34 @@
 	</head>
 	<body>
 	<div id="add" style="padding:10px; cursor:pointer; border:#333 solid 1px; background:#fff; position:relative; float:left;">add some text</div>
+	<div id="remove" style="padding:10px; cursor:pointer; border:#333 solid 1px; background:#fff; position:relative; float:left;">remove some text</div>
 	<div id="id11" style="display:none">
-			
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in ligula id sem tristique ultrices
-				eget id neque. Duis enim turpis, tempus at accumsan vitae, lobortis id sapien. Pellentesque nec orci
-				mi, in pharetra ligula. Nulla facilisi. Nulla facilisi. Mauris convallis venenatis massa, quis
-				consectetur felis ornare quis. Sed aliquet nunc ac ante molestie ultricies. Nam pulvinar ultricies
-				bibendum. Vivamus diam leo, faucibus et vehicula eu, molestie sit amet dui. Proin nec orci et elit
-				semper ultrices. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-				mus. Sed quis urna mi, ac dignissim mauris. Quisque mollis ornare mauris, sed laoreet diam malesuada
-				quis. Proin vel elementum ante. Donec hendrerit arcu ac odio tincidunt posuere. Vestibulum nec risus
-				eu lacus semper viverra.
-			
-				Vestibulum dictum consectetur magna eu egestas. Praesent molestie dapibus erat, sit amet sodales
-				lectus congue ut. Nam adipiscing, tortor ac blandit egestas, lorem ligula posuere ipsum, nec
-				faucibus nisl enim eu purus. Quisque bibendum diam quis nunc eleifend at molestie libero tincidunt.
-				Quisque tincidunt sapien a sapien pellentesque consequat. Mauris adipiscing venenatis augue ut
-				tempor. Donec auctor mattis quam quis aliquam. Nullam ultrices erat in dolor pharetra bibendum.
-				Suspendisse eget odio ut libero imperdiet rhoncus. Curabitur aliquet, ipsum sit amet aliquet varius,
-				est urna ullamcorper magna, sed eleifend libero nunc non erat. Vivamus semper turpis ac turpis
-				volutpat non cursus velit aliquam. Fusce id tortor id sapien porta egestas. Nulla venenatis luctus
-				libero et suscipit. Sed sed purus risus. Donec auctor, leo nec eleifend vehicula, lacus felis
-				sollicitudin est, vitae lacinia lectus urna nec libero. Aliquam pellentesque, arcu condimentum
-				pharetra vestibulum, lectus felis malesuada felis, vel fringilla dolor dui tempus nisi. In hac
-				habitasse platea dictumst. Ut imperdiet mauris vitae eros varius eget accumsan lectus adipiscing.
-			
-		</div>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec in ligula id sem tristique ultrices
+		eget id neque. Duis enim turpis, tempus at accumsan vitae, lobortis id sapien. Pellentesque nec orci
+		mi, in pharetra ligula. Nulla facilisi. Nulla facilisi. Mauris convallis venenatis massa, quis
+		consectetur felis ornare quis. Sed aliquet nunc ac ante molestie ultricies. Nam pulvinar ultricies
+		bibendum. Vivamus diam leo, faucibus et vehicula eu, molestie sit amet dui. Proin nec orci et elit
+		semper ultrices. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus
+		mus. Sed quis urna mi, ac dignissim mauris. Quisque mollis ornare mauris, sed laoreet diam malesuada
+		quis. Proin vel elementum ante. Donec hendrerit arcu ac odio tincidunt posuere. Vestibulum nec risus
+		eu lacus semper viverra.
+	
+		Vestibulum dictum consectetur magna eu egestas. Praesent molestie dapibus erat, sit amet sodales
+		lectus congue ut. Nam adipiscing, tortor ac blandit egestas, lorem ligula posuere ipsum, nec
+		faucibus nisl enim eu purus. Quisque bibendum diam quis nunc eleifend at molestie libero tincidunt.
+		Quisque tincidunt sapien a sapien pellentesque consequat. Mauris adipiscing venenatis augue ut
+		tempor. Donec auctor mattis quam quis aliquam. Nullam ultrices erat in dolor pharetra bibendum.
+		Suspendisse eget odio ut libero imperdiet rhoncus. Curabitur aliquet, ipsum sit amet aliquet varius,
+		est urna ullamcorper magna, sed eleifend libero nunc non erat. Vivamus semper turpis ac turpis
+		volutpat non cursus velit aliquam. Fusce id tortor id sapien porta egestas. Nulla venenatis luctus
+		libero et suscipit. Sed sed purus risus. Donec auctor, leo nec eleifend vehicula, lacus felis
+		sollicitudin est, vitae lacinia lectus urna nec libero. Aliquam pellentesque, arcu condimentum
+		pharetra vestibulum, lectus felis malesuada felis, vel fringilla dolor dui tempus nisi. In hac
+		habitasse platea dictumst. Ut imperdiet mauris vitae eros varius eget accumsan lectus adipiscing.
+	</div>
+	<div id="id12" style="display:none">
+		a little text
+	</div>
 	<div class="s_string">
 		<div id="id1" class="scroll j_scroll">
 			a little text

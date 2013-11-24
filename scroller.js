@@ -1,16 +1,13 @@
 /**
  * Created by Graf on 24.10.13.
- * pre-alfa version
+ * v 1.0
+ * there should some bugs with elements selection locking in this version
  */
- //TODO: j_scontent наверно выпилить
- //TODO: data change to this
 (function(jQuery){
     'use strict';
     var
         Master=[],
-        jdoc=$(document),
-		jbody,
-        jwindow=$(window);
+        jdoc,jbody,jwindow;
 
     function checkMaster(el){
         var
@@ -21,234 +18,201 @@
                 return Master[i];
         return false;
     };
-    function init(el,axis){
-		jbody=$(document.body);
-        if(!el)
+	function construct(el,axis){
+		if(!el)
             return;
-        if(!checkMaster(el))
-            var index=Master.push({
-                el:el,
-                jel:$(el),
-                catched:false,//flag means that runner is pressed
-                clicked:false,//flag means that runner was pressed
-                out:true,//flag means that cursor el is hovered
-                scrollable:true,//flag means that element is scrollable
-                axis:axis?axis:'y',
-                tempHtml:el.innerHTML,
-                child:$('<div/>'),
-                scontent:$('<div/>'),//scrolled content
-                scontrol:$('<div/>'),
-                scrollRail:$('<div/>'),
-                runner:$('<div/>'),//runner  on rail
-                scwidth:null,//scrolled content width
-                scheight:null,//scrolled content height
-                railwidth:null,//width of rail
-                railheight:null,//height of rail
-                runnerwidth:null,//width of runner
-                runnerheight:null,//height of runner
-                runnerSize:null,//current size of runner
-                runnerMin:20,//minimal size of runner
-                fadeIn:100,//speed of fadingIn rail
-                fadeOut:500,//speed of fadingIn rail
-                coef:null,//relation between height of content and height of rail
-                childwidth:null,//
-                childheight:null,//
-                delta:0,//
-                wheelRel:5,//sensitivity of mouse wheel
-                last:0,//last value of delta
-                startX:0,//
-                startY:0//
-            });
-
-
-        visualise(el);
-        bindEvents(el);
+		this.el=el;
+		this.jel=$(el);
+		this.axis=axis||'y';
+		this.pos=this.jel.css('position')!='static'?this.jel.css('position'):'relative';
+	};
+    construct.prototype.init=function(){
+		this.tempHtml=this.el.innerHTML;
+		this.catched=false;//flag means that runner is pressed
+		this.clicked=false;//flag means that runner was pressed
+		this.out=true;//flag means that cursor el is hovered
+		this.scrollable=true;//flag means that element is scrollable
+		this.child=$('<div/>');
+		this.scontent=$('<div/>');//scrolled content
+		this.scontrol=$('<div/>');
+		this.scrollRail=$('<div/>');
+		this.runner=$('<div/>');//runner  on rail
+		this.scwidth=0;//scrolled content width
+		this.scheight=0;//scrolled content height
+		this.childwidth=0;//
+		this.childheight=0;//
+		this.railwidth=0;//width of rail
+		this.railheight=0;//height of rail
+		this.runnerwidth=0;//width of runner
+		this.runnerheight=0;//height of runner
+		this.runnerSize=0;//current size of runner
+		this.runnerMin=20;//minimal size of runner
+		this.fadeIn=100;//speed of fadingIn rail
+		this.fadeOut=500;//speed of fadingIn rail
+		this.coef=0;//relation between height of content and height of rail
+		this.delta=0;//
+		this.wheelRel=5;//sensitivity of mouse wheel
+		this.last=0;//last value of delta
+		this.startX=0;//
+		this.startY=0;//
+        this.visualise();
+        this.bindEvents();
     }
-    function bindEvents(el){
-        var data=checkMaster(el);
-        data.jel.on('mouseenter.scrollable',showRail).on('mouseleave.scrollable',hideRail)
-        data.runner.on('mousedown.scrollable',mousedown);
-        data.scrollRail.on('click.scrollable',click);
+    construct.prototype.bindEvents=function(){
+		var
+			self=this;
+        this.jel.on('mouseenter.scrollable',showRail).on('mouseleave.scrollable',hideRail)
+        this.runner.on('mousedown.scrollable',mousedown);
+        this.scrollRail.on('click.scrollable',click);
         jdoc.on('mousemove.scrollable',mousemove);
-        data.jel.on('scroll.scrollable, mousewheel.scrollable',mousewheel);
+        this.jel.on('scroll.scrollable, mousewheel.scrollable',mousewheel);
         jwindow.on('mouseup.scrollable',mouseup);
- 
+		document.ondragstart = function() {if(self.catched)return false;};
+        document.body.onselectstart = function() {if(self.catched)return false;};
         function hideRail(){
-            data.out=true;
-            if(!data.catched)
-                data.scrollRail.stop().animate({opacity:0},data.fadeOut);
+            self.out=true;
+            if(!self.catched)
+                self.scrollRail.stop().animate({opacity:0},self.fadeOut);
         };
         function showRail(){
-            data.out=false;
-            data.scrollRail.stop().animate({opacity:1},data.fadeIn);
+            self.out=false;
+            self.scrollRail.stop().animate({opacity:1},self.fadeIn);
         };
         function mousedown(e){//start dragging runner
-            data.catched=true;
-            data.clicked=true;
-            data.hui=true;
-            data.startX=e.pageX;
-            data.startY=e.pageY;
-		jbody.css({
-			'-mozUserSelect': 'none',
-			'-webkitUserSelect': 'none',
-			'-khtmlUserSelect': 'none',
-			'-msUserSelect': 'none',
-			'-oUserSelect': 'none',
-			'userSelect': 'none'
-		});
+            self.catched=true;
+            self.clicked=true;
+            self.startX=e.pageX;
+            self.startY=e.pageY;
         };
         function click(e){//scrolling by click on rail
-            if(!data.clicked)
-                data.last=data.axis=='y'?move(el,e.offsetY-data.runnerheight/2):move(el,e.offsetX-data.runnerwidth/2);
-            data.clicked=false;
+            if(!self.clicked)
+                self.last=self.axis=='y'?self.move(e.offsetY-self.runnerheight/2):self.move(e.offsetX-self.runnerwidth/2);
+            self.clicked=false;
         };
         function mousemove(e){//scrolling by dragging runner
-            if(data.catched)
-                data.axis=='y'?move(el,e.pageY-data.startY+data.last):move(el,e.pageX-data.startX+data.last);
+            if(self.catched)
+                self.axis=='y'?self.move(e.pageY-self.startY+self.last):self.move(e.pageX-self.startX+self.last);
         };
         function mousewheel(e){//scrolling by tracking mouse wheel
-            data.last=move(el,e.originalEvent.wheelDelta<0?data.delta+data.wheelRel:data.delta-data.wheelRel);
+            self.last=self.move(e.originalEvent.wheelDelta<0?self.delta+self.wheelRel:self.delta-self.wheelRel);
         };
         function mouseup(){//end dragging runner
-            data.catched=false;
-            data.last=data.delta;
-            if(data.out)
-                data.scrollRail.stop().animate({opacity:0},data.fadeOut);
-			jbody.css({
-			'-mozUserSelect': 'all',
-			'-webkitUserSelect': 'all',
-			'-khtmlUserSelect': 'all',
-			'-msUserSelect': 'all',
-			'-oUserSelect': 'all',
-			'userSelect': 'all'
-		});
+            self.catched=false;
+            self.last=self.delta;
+            if(self.out)
+                self.scrollRail.stop().animate({opacity:0},self.fadeOut);
         };
     };
-    function unscroll(el){//removing all scrollable functionality
-        var
-            data=checkMaster(el),
-            tempHTML=$('.j_scontent',el).html();
-        data.scrollable=false;
-        el.innerHTML=tempHTML;
-        data.jel.off('mouseenter.scrollable').off('mouseleave.scrollable').off('mousewheel.scrollable');
-        data.runner.off('mousedown.scrollable');
-        data.scrollRail.off('click.scrollable');
+    construct.prototype.unscroll=function(){//removing all scrollable functionality
+		if(this.jel.find('.j_scontent').length)
+			this.jel.html(this.scontent.html());
+        this.scrollable=false;
+        this.jel.off('mouseenter.scrollable').off('mouseleave.scrollable').off('mousewheel.scrollable');
+        this.runner.off('mousedown.scrollable');
+        this.scrollRail.off('click.scrollable');
         jdoc.off('mousemove.scrollable');
         jwindow.off('mouseup.scrollable');
     };
-    function move(el,val){//validates delta and moves runner and content
-        var data=checkMaster(el);
-        if(data.axis=='y'){
-            data.delta=val<0?0:val=val>data.railheight-data.runnerheight?data.railheight-data.runnerheight:val;//validation for edges
-            data.runner.css('top',data.delta);
-            data.scontent.css('top',-data.delta/data.coef);
+    construct.prototype.move=function(val){//validates delta and moves runner and content
+        if(this.axis=='y'){
+            this.delta=val<0?0:val=val>this.railheight-this.runnerheight?this.railheight-this.runnerheight:val;//validation for edges
+            this.runner.css('top',this.delta);
+            this.scontent.css('top',-this.delta/this.coef);
         }
         else{
-            data.delta=val<0?0:val=val>data.railwidth-data.runnerwidth?data.railwidth-data.runnerwidth:val;//validation for edges
-            data.runner.css('left',data.delta);
-            data.scontent.css('left',-data.delta/data.coef);
+            this.delta=val<0?0:val=val>this.railwidth-this.runnerwidth?this.railwidth-this.runnerwidth:val;//validation for edges
+            this.runner.css('left',this.delta);
+            this.scontent.css('left',-this.delta/this.coef);
         }
-        return data.delta;
+        return this.delta;
     };
-    function visualise(el){//prepares element to become scrollable
-        var
-            data=checkMaster(el),
-            tempHTML=el.innerHTML,
-            pos=$(el).css('position')!='static'?$(el).css('position'):'relative';
-        data.jel
+    construct.prototype.visualise=function(){//prepares element to become scrollable
+        this.jel
             .empty()
-            .css('position',pos);
-        data.child
+            .css('position',this.pos);
+        this.child
             .addClass('scr_Child')
-            .appendTo(data.jel);
-        data.scontent
-            .html(tempHTML)
+            .appendTo(this.jel);
+        this.scontent
+            .html(this.tempHtml)
             .addClass('j_scontent scr_Content')
-            .appendTo(data.child);
-        data.scontrol
-            .addClass('scr_Control '+(data.axis=='y'?'scr_Control_vert':'scr_Control_hor'))
-            .appendTo(data.child);
-        data.scrollRail
+            .appendTo(this.child);
+        this.scontrol
+            .addClass('scr_Control '+(this.axis=='y'?'scr_Control_vert':'scr_Control_hor'))
+            .appendTo(this.child);
+        this.scrollRail
             .addClass('scr_Rail')
-            .appendTo(data.scontrol);
-        data.runner
-            .addClass('scr_Runner '+(data.axis=='y'?'scr_Runner_vert':'scr_Runner_hor'))
-            .appendTo(data.scrollRail);
-        checkSizes(el);
+            .appendTo(this.scontrol);
+        this.runner
+            .addClass('scr_Runner '+(this.axis=='y'?'scr_Runner_vert':'scr_Runner_hor'))
+            .appendTo(this.scrollRail);
+        this.checkSizes();
     };
-    function checkSizes(el){
-        var data=checkMaster(el);
-        data.scwidth=data.scontent[0].clientWidth;
-        data.scheight=data.scontent[0].clientHeight;
-        data.railwidth=data.scrollRail[0].clientWidth;
-        data.railheight=data.scrollRail[0].clientHeight;
-        data.runnerSize=data.axis=='y'?data.railheight*(data.railheight/data.scheight)>data.runnerMin?data.railheight*(data.railheight/data.scheight):data.runnerMin:data.railwidth*(data.railwidth/data.scwidth)>data.runnerMin?data.railwidth*(data.railwidth/data.scwidth):data.runnerMin;
-        data.runner
-            .css(data.axis=='y'?{
-                'height': data.runnerSize+'px'
-            }:{
-                'width': data.runnerSize+'px'
-            })
+    construct.prototype.checkSizes=function(){//recalculates sizes
+        this.scwidth=this.scontent[0].clientWidth;
+        this.scheight=this.scontent[0].clientHeight;
+        this.railwidth=this.scrollRail[0].clientWidth;
+        this.railheight=this.scrollRail[0].clientHeight;
+        this.runnerSize=this.axis=='y'?this.railheight*(this.railheight/this.scheight)>this.runnerMin?this.railheight*(this.railheight/this.scheight):this.runnerMin:this.railwidth*(this.railwidth/this.scwidth)>this.runnerMin?this.railwidth*(this.railwidth/this.scwidth):this.runnerMin;
+		this.runner.css(this.axis=='y'?{'height':this.runnerSize+'px'}:{'width':this.runnerSize+'px'});
+        this.runnerwidth=this.runner[0].clientWidth;
+        this.runnerheight=this.runner[0].clientHeight;
+        this.coef=this.axis=='y'?(this.railheight-this.runnerheight)/(this.scheight-this.railheight):(this.railwidth-this.runnerwidth)/(this.scwidth-this.railwidth);
+        this.childwidth=this.child[0].clientWidth;
+        this.childheight=this.child[0].clientHeight;
 
-        data.runnerwidth=data.runner[0].clientWidth;
-        data.runnerheight=data.runner[0].clientHeight;
-        data.coef=data.axis=='y'?(data.railheight-data.runnerheight)/(data.scheight-data.railheight):(data.railwidth-data.runnerwidth)/(data.scwidth-data.railwidth);
-        data.childwidth=data.child[0].clientWidth;
-        data.childheight=data.child[0].clientHeight;
-
-        if(data.axis=='y'){
-            if(data.scheight<=data.childheight && data.scrollable)//if we don't have a reason to scroll via Y
-                if($('.j_scontent',el)[0]){
-                    unscroll(el);
-                }
-                else{
-                    data.scrollable=true;
-                    init(el);
-                }
-            else {//if element was inited, but unscrolled
-                if(data.scrollable){
-                    bindEvents(el);
-                }
-                else{
-                    data.scrollable=true;
-                    init(el);
-                }
-            }
+        if(this.axis=='y'){
+			if(this.jel.find('.j_scontent').length){//inner html of element was not changed
+				if(this.scheight<=this.childheight && this.scrollable){//if we don't have a reason to scroll via Y
+					if(checkMaster(this.el))//element was inited
+						this.unscroll();
+				}
+				else {//we  have a reason to scroll via Y 
+					if(checkMaster(this.el)){//element was inited
+						if(!this.scrollable)
+							this.init();
+					}
+				}
+			}
+			else
+				this.init();
         }
-
         else{
-            if(data.scwidth<=data.childwidth && data.scrollable)//if we don't have a reason to scroll via X
-                if($('.j_scontent',el)[0]){
-                    unscroll(el);
-                }
-                else{
-                    data.scrollable=true;
-                    init(el);
-                }
-            else{//if element was inited, but unscrolled
-                if(data.scrollable){
-                    bindEvents(el);
-
-                }
-                else{
-                    data.scrollable=true;
-                    init(el);
-                }
-
-            }
+			if(this.jel.find('.j_scontent').length){//inner html of element was not changed
+				if(this.scwidth<=this.childwidth && this.scrollable){//if we don't have a reason to scroll via X
+					if(checkMaster(this.el))
+						this.unscroll();
+				}
+				else{//we have a reason to scroll via X
+					if(checkMaster(this.el)){
+						if(!this.scrollable)
+							this.init();
+					}
+				}
+			}
+			else
+				this.init();
         }
     };
+	$(function(){
+		jwindow=$(window);
+		jdoc=$(document);
+		jbody=$(document.body);
+	});
     jQuery.fn.extend({
         scrollUpdate: function() {
             return this.each(function() {
-                if(checkMaster(this))
-                    checkSizes(this);
+				var 
+					obj=checkMaster(this);
+                if(obj)
+                    obj.checkSizes();
 
             });
         },
         scrollable: function(axis) {
             return this.each(function() {
-                init(this,axis);
+			if(!checkMaster(this))
+				(Master[Master.push(new construct(this,axis))-1]).init();
             });
         }
     });
